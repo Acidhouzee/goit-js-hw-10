@@ -5,7 +5,7 @@ function fetchCountries(name) {
     return fetch(`${URL}/${name}`)
     .then((res) => {
         if (!res.ok) {
-            Notiflix.Notify.failure('Oops, there is no country with that name');
+            throw new Error(res.status);
         }
         return res.json();
       });

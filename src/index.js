@@ -1,7 +1,9 @@
-import './css/styles.css';
-import { fetchCountries } from './fetchCountries';
 import debounce from 'lodash.debounce';
 import Notiflix from 'notiflix';
+import { fetchCountries } from './fetchCountries';
+import './css/styles.css';
+
+
 
 const DEBOUNCE_DELAY = 300;
 
@@ -43,26 +45,30 @@ function buildCountryInfo(countries) {
     countryInfo.innerHTML = info;
 }
 
+function clearContent() {
+    countryList.innerHTML = '';
+    countryInfo.innerHTML = '';
+}
+
 const debounced = debounce((event) => {
     const value = event.target.value.trim();
+    clearContent();
     if(value === '') {
-        Notiflix.Notify.info('Type country name');
-        countryList.innerHTML = '';
+        Notiflix.Notify.info('Type country name');  
     }
-    if(value) {
-        fetchCountries(value).then((result) => {
-            console.log(result);
-            if(result.length > 10) {
-                Notiflix.Notify.info('Too many matches found. Please enter a more specific name.');
-            } else if (result.length >= 2 && result.length <=10) {
-                buildCountriesList(result);
-                countryInfo.innerHTML = '';
-            } else if(result.length === 1) {
-                buildCountriesList(result);
-                buildCountryInfo(result);
-            }
-        });  
-    }
+    fetchCountries(value).then((result) => {
+        if(result.length > 10) {
+            Notiflix.Notify.info('Too many matches found. Please enter a more specific name.');
+        } else if (result.length >= 2 && result.length <=10) {
+            buildCountriesList(result); 
+        } else if(result.length === 1) {
+            buildCountriesList(result);
+            buildCountryInfo(result);
+        }
+    })
+    .catch((error) => {
+        Notiflix.Notify.failure('Oops, there is no country with that name');
+    }); 
 }, DEBOUNCE_DELAY); 
 
 inputCountry.addEventListener('input', debounced);
